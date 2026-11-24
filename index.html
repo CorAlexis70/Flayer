@@ -1221,7 +1221,7 @@ Cocina Comedor
             <div class="p1-tag">Llave en Mano</div>
             <div class="p1-ribbon-left">${d.llave}</div>
           </div>
-          <div class="p1-nombre">${d.modelo}</div>
+          <div class="p1-nombre">${String(d.modelo || "").toUpperCase()}</div>
           <div class="p1-mid-right">
             <div class="p1-gris-lbl">Obra en Gris<br>c/ Platea</div>
             <div class="p1-ribbon-right">${d.platea}</div>

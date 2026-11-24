@@ -1,0 +1,1641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Generador de Flyers - Catalogo_Conf</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:ital,wght@0,500;0,700;0,800;0,900;1,800;1,900&family=Oswald:wght@600;700&family=Rubik:ital,wght@0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    :root {
+      --bordeaux: #6b0f1a;
+      --rojo: #d61f26;
+      --rojo-oscuro: #8f1116;
+      --azul-marino: #132238;
+      --dorado: #f5c518;
+      --verde-wa: #16a34a;
+      --oscuro: #0f172a;
+      --flyer-scale: 1;
+      --flyer-w: 460px;
+      --flyer-h: 575px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #0b1120;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+    }
+
+    @media (max-width: 960px) {
+      body { grid-template-columns: 1fr; }
+    }
+
+    /* PANEL LATERAL DE CONTROLES */
+    .sidebar {
+      background: #111827;
+      border-right: 1px solid #1f2937;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      max-height: 100vh;
+    }
+
+    @media (max-width: 960px) {
+      .sidebar {
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid #1f2937;
+        padding: 14px;
+      }
+    }
+
+    .sidebar h1 {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--dorado);
+      letter-spacing: 0.5px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .fmt-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 7px 6px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      transition: 0.15s;
+    }
+
+    .fmt-btn:hover { border-color: var(--dorado); }
+    .fmt-btn.active {
+      background: #1d4ed8;
+      border-color: #93c5fd;
+      color: #fff;
+    }
+
+    /* MÓDULO DE ENCUADRE Y ZOOM DEBAJO DE LA VISTA PREVIA */
+    .crop-box {
+      width: 100%;
+      max-width: 520px;
+      background: rgba(17, 24, 39, 0.92);
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .crop-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .crop-header label {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--dorado);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .btn-reset-crop {
+      background: #1e293b;
+      border: 1px solid #475569;
+      color: #f8fafc;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .btn-reset-crop:hover {
+      border-color: var(--dorado);
+      color: var(--dorado);
+    }
+
+    .crop-sliders {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .crop-sliders {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+
+    .slider-row {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #cbd5e1;
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--dorado);
+      cursor: pointer;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .field label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .field input, .field select, .field textarea {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 7px 9px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .field input[type="file"] {
+      padding: 6px;
+      font-size: 12px;
+    }
+
+    .field textarea { resize: vertical; min-height: 68px; }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .tpl-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      padding: 7px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.15s;
+    }
+
+    .tpl-btn:hover { border-color: var(--dorado); }
+    .tpl-btn.active {
+      background: var(--bordeaux);
+      border-color: var(--dorado);
+      color: #fff;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .btn {
+      padding: 11px 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .btn-jpg { background: var(--verde-wa); color: #fff; }
+    .btn-png { background: var(--rojo); color: #fff; }
+
+    .quality-note {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.35;
+    }
+
+    /* ÁREA DE PREVISUALIZACIÓN RESPONSIVE */
+    .preview-area {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px 24px 28px;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 100%);
+      overflow: hidden;
+    }
+
+    @media (max-width: 960px) {
+      .preview-area {
+        padding: 16px 12px 28px;
+        gap: 14px;
+      }
+    }
+
+    .flyer-wrapper {
+      width: calc(var(--flyer-w) * var(--flyer-scale));
+      height: calc(var(--flyer-h) * var(--flyer-scale));
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+    }
+
+    /* LIENZO BASE DEL FLYER */
+    .flyer-canvas {
+      position: relative;
+      width: var(--flyer-w);
+      height: var(--flyer-h);
+      flex-shrink: 0;
+      transform: scale(var(--flyer-scale));
+      transform-origin: top left;
+      overflow: hidden;
+      background: #1e293b;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65);
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    .flyer-canvas .flyer-bg-blur {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      filter: blur(18px) brightness(0.75);
+      transform: scale(1.12);
+      z-index: 0;
+    }
+
+    .flyer-canvas .flyer-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 1;
+    }
+
+    .flyer-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: transparent;
+    }
+
+    .flyer-layer {
+      position: relative;
+      z-index: 3;
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo-badge {
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      background: #fff;
+      padding: 5px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .logo-badge img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .check-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .check-list li::before {
+      content: "✔ ";
+      color: #ef4444;
+      font-weight: 900;
+    }
+
+    /* PLANTILLA 1 (ESTILO CANVA CON BANDERINES DOBLES) */
+    .tpl-1 .flyer-overlay {
+      background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 40%, rgba(0,0,0,0.45) 100%);
+    }
+    .tpl-1 .p1-top-left {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+    }
+    .tpl-1 .p1-modelo-lbl {
+      padding-left: 2px;
+      font-family: 'Rubik', sans-serif;
+      font-weight: 900;
+      font-style: normal;
+      font-size: 36px;
+      letter-spacing: 0.6px;
+      color: var(--azul-marino);
+      -webkit-text-stroke: 3px #ffffff;
+      paint-order: stroke fill;
+      stroke-linejoin: round;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+      line-height: 1;
+    }
+    .tpl-1 .p1-tag {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 1px 4px;
+      background: transparent;
+      color: var(--azul-marino);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 19px;
+      letter-spacing: 0.8px;
+      -webkit-text-stroke: 5.5px #ffffff;
+      paint-order: stroke fill;
+      stroke-linejoin: round;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+      line-height: 1.15;
+    }
+    .tpl-1 .p1-ribbon-left {
+      position: relative;
+      margin-top: 6px;
+      background: var(--rojo);
+      color: #ffffff;
+      font-family: 'Anton', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.6px;
+      padding: 4px 18px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      line-height: 1.08;
+      display: inline-block;
+    }
+    .tpl-1 .p1-ribbon-left::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      bottom: -7px;
+      border-top: 7px solid var(--rojo-oscuro);
+      border-left: 10px solid transparent;
+    }
+    .tpl-1 .p1-ribbon-left::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      bottom: -7px;
+      border-top: 7px solid var(--rojo-oscuro);
+      border-right: 10px solid transparent;
+    }
+    .tpl-1 .p1-nombre {
+      position: absolute;
+      top: 46px;
+      right: 42px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 30px;
+      font-weight: 900;
+      font-style: normal;
+      text-transform: uppercase;
+      color: var(--dorado);
+      -webkit-text-stroke: 2px var(--azul-marino);
+      paint-order: stroke fill;
+      stroke-linejoin: round;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+      text-align: center;
+      max-width: 215px;
+      line-height: 1.05;
+    }
+    .tpl-1 .p1-mid-right {
+      position: absolute;
+      top: 122px;
+      right: 18px;
+      text-align: right;
+    }
+    .tpl-1 .p1-gris-lbl {
+      padding-right: 2px;
+      margin-bottom: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: 0.4px;
+      color: #ffffff;
+      -webkit-text-stroke: 5px var(--azul-marino);
+      paint-order: stroke fill;
+      stroke-linejoin: round;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+      line-height: 1.12;
+    }
+    .tpl-1 .p1-ribbon-right {
+      position: relative;
+      margin-top: 4px;
+      background: var(--rojo);
+      color: #ffffff;
+      font-family: 'Anton', sans-serif;
+      font-size: 24px;
+      letter-spacing: 0.6px;
+      padding: 4px 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.35);
+      line-height: 1.08;
+      display: inline-block;
+    }
+    .tpl-1 .p1-ribbon-right::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      bottom: -7px;
+      border-top: 7px solid var(--rojo-oscuro);
+      border-left: 10px solid transparent;
+    }
+    .tpl-1 .p1-ribbon-right::after {
+      content: "";
+      position: absolute;
+      right: -10px;
+      bottom: -7px;
+      border-top: 7px solid var(--rojo-oscuro);
+      border-right: 10px solid transparent;
+    }
+    .tpl-1 .p1-specs {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      background: rgba(19, 34, 56, 0.80);
+      backdrop-filter: blur(2px);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    .tpl-1 .logo-badge {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+    }
+
+    /* PLANTILLA 2 */
+    .tpl-2 .flyer-overlay {
+      background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.45) 38%, rgba(0,0,0,0.62) 100%);
+    }
+    .tpl-2 .p2-header {
+      padding: 16px 20px 0; text-align: center; color: #1e293b;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .tpl-2 .logo-badge { width: 56px; height: 56px; margin-bottom: 6px; }
+    .tpl-2 .p2-claim { font-size: 15px; font-weight: 800; color: #334155; }
+    .tpl-2 .p2-subclaim { font-size: 18px; font-weight: 900; color: #9a3412; margin-bottom: 8px; }
+    .tpl-2 .p2-pill {
+      border: 2px solid #9a3412; background: rgba(255,255,255,0.9);
+      border-radius: 12px; padding: 6px 18px;
+      display: inline-flex; align-items: baseline; gap: 8px;
+    }
+    .tpl-2 .p2-pill span { font-size: 15px; font-weight: 800; color: #1e293b; }
+    .tpl-2 .p2-pill strong { font-size: 28px; font-weight: 900; color: #9a3412; }
+    .tpl-2 .p2-sistema { font-size: 12px; font-weight: 700; color: #1e293b; margin-top: 4px; }
+    .tpl-2 .p2-bottom {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      display: flex; justify-content: space-between; align-items: flex-end; gap: 10px;
+    }
+    .tpl-2 .p2-promo-box {
+      background: #9a3412; color: #fff; padding: 8px 12px; border-radius: 8px;
+      font-size: 12px; font-weight: 800; max-width: 210px;
+    }
+    .tpl-2 .p2-card {
+      background: rgba(255,255,255,0.94); color: #0f172a;
+      padding: 10px 12px; border-radius: 10px; font-size: 12px; font-weight: 700;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+
+    /* PLANTILLA 3 */
+    .tpl-3 .flyer-overlay {
+      background: linear-gradient(180deg, rgba(107,15,26,0.9) 0%, rgba(107,15,26,0.18) 32%, rgba(15,23,42,0.9) 100%);
+    }
+    .tpl-3 .p3-top {
+      padding: 18px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .tpl-3 .p3-title h2 { font-size: 24px; font-weight: 900; color: var(--dorado); text-transform: uppercase; }
+    .tpl-3 .p3-title p { font-size: 12px; font-weight: 700; color: #f8fafc; }
+    .tpl-3 .p3-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0; padding: 18px;
+      background: linear-gradient(0deg, #4a0810 65%, transparent 100%);
+    }
+    .tpl-3 .p3-prices {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;
+    }
+    .tpl-3 .p3-price-box {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(245,197,24,0.55);
+      border-radius: 8px; padding: 8px 10px;
+    }
+    .tpl-3 .p3-price-box small { display: block; font-size: 10px; color: var(--dorado); font-weight: 700; }
+    .tpl-3 .p3-price-box strong { font-size: 19px; font-weight: 900; color: #fff; }
+    .tpl-3 .p3-specs-row {
+      display: flex; flex-wrap: wrap; gap: 6px; font-size: 11px; font-weight: 700;
+    }
+    .tpl-3 .p3-chip { background: var(--dorado); color: #1e293b; padding: 3px 8px; border-radius: 4px; }
+
+    /* PLANTILLA 4 */
+    .tpl-4 .flyer-overlay {
+      background: linear-gradient(180deg, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.12) 45%, rgba(15,23,42,0.94) 100%);
+    }
+    .tpl-4 .p4-header { padding: 16px 18px; display: flex; justify-content: space-between; align-items: center; }
+    .tpl-4 .p4-header h2 { font-size: 22px; font-weight: 900; }
+    .tpl-4 .p4-badge { background: var(--rojo); padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+    .tpl-4 .p4-table {
+      position: absolute; bottom: 14px; left: 14px; right: 14px;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .tpl-4 .p4-row {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(30,41,59,0.92); border-left: 4px solid #64748b;
+      padding: 8px 12px; border-radius: 6px;
+    }
+    .tpl-4 .p4-row.destacado { background: var(--bordeaux); border-left-color: var(--dorado); }
+    .tpl-4 .p4-row span { font-size: 12px; font-weight: 700; }
+    .tpl-4 .p4-row strong { font-size: 18px; font-weight: 900; }
+
+    /* PLANTILLA 5 */
+    .tpl-5 { background: #f8fafc; color: #0f172a; }
+    .tpl-5 .flyer-bg,
+    .tpl-5 .flyer-bg-blur { height: 60%; }
+    .tpl-5 .p5-panel {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 42%;
+      background: #ffffff; border-radius: 22px 22px 0 0; padding: 18px 20px;
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.16);
+      display: flex; flex-direction: column; justify-content: space-between;
+      z-index: 3;
+    }
+    .tpl-5 .p5-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .tpl-5 .p5-top h2 { font-size: 22px; font-weight: 900; color: #0f172a; }
+    .tpl-5 .p5-top span { font-size: 12px; font-weight: 700; color: #64748b; }
+    .tpl-5 .p5-prices { display: flex; gap: 12px; }
+    .tpl-5 .p5-box { flex: 1; background: #f1f5f9; padding: 8px 10px; border-radius: 8px; }
+    .tpl-5 .p5-box.main { background: #0f172a; color: #fff; }
+    .tpl-5 .p5-box small { font-size: 10px; font-weight: 700; opacity: 0.8; display: block; }
+    .tpl-5 .p5-box strong { font-size: 17px; font-weight: 900; }
+    .tpl-5 .logo-badge { position: absolute; top: 14px; right: 14px; width: 54px; height: 54px; }
+
+    /* PLANTILLA 6 */
+    .tpl-6 .flyer-overlay {
+      background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.78) 0%,
+        rgba(15, 23, 42, 0.34) 38%,
+        rgba(15, 23, 42, 0.14) 60%,
+        rgba(15, 23, 42, 0.86) 100%
+      );
+    }
+    .tpl-6 .p6-header {
+      padding: 14px 16px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .tpl-6 .logo-badge { width: 50px; height: 50px; }
+    .tpl-6 .p6-brand-txt {
+      flex: 1;
+      text-align: center;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.75);
+    }
+    .tpl-6 .p6-brand-txt .p6-modelo {
+      font-size: 20px;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      color: #fff;
+      line-height: 1.05;
+    }
+    .tpl-6 .p6-brand-txt .p6-sub {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--dorado);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+    .tpl-6 .p6-m2-pill {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid var(--dorado);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .tpl-6 .p6-m2-pill strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--dorado);
+      line-height: 1.05;
+    }
+    .tpl-6 .p6-m2-pill span {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .tpl-6 .p6-hero-price {
+      margin: 12px auto 0;
+      max-width: 340px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .tpl-6 .p6-price-tag {
+      background: var(--azul-marino);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 3px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .tpl-6 .p6-price-main {
+      background: linear-gradient(90deg, var(--rojo-oscuro) 0%, var(--rojo) 50%, var(--rojo-oscuro) 100%);
+      color: #fff;
+      font-size: 27px;
+      font-weight: 900;
+      padding: 6px 18px;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.45);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+      line-height: 1.08;
+    }
+    .tpl-6 .p6-price-sub {
+      background: rgba(255, 255, 255, 0.94);
+      color: #0f172a;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .tpl-6 .p6-price-sub strong {
+      color: var(--rojo-oscuro);
+      font-weight: 900;
+    }
+    .tpl-6 .p6-side-badges {
+      position: absolute;
+      top: 70%;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+    .tpl-6 .p6-badge-l {
+      background: var(--bordeaux);
+      border: 1.5px solid var(--dorado);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 900;
+      text-transform: uppercase;
+      max-width: 125px;
+      line-height: 1.2;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    }
+    .tpl-6 .p6-badge-r {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: right;
+      max-width: 125px;
+      line-height: 1.2;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.4);
+    }
+    .tpl-6 .p6-bottom {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255,255,255,0.16);
+      border-radius: 10px;
+      padding: 9px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .tpl-6 .p6-specs-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 10px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    .tpl-6 .p6-specs-grid span::before {
+      content: "✔ ";
+      color: var(--dorado);
+      font-weight: 900;
+    }
+    .tpl-6 .p6-cta {
+      background: var(--dorado);
+      color: #0f172a;
+      font-size: 10.5px;
+      font-weight: 900;
+      padding: 6px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* PLANTILLA 7 */
+    .tpl-7 .p7-banner {
+      background: var(--rojo); color: #fff; padding: 14px 18px;
+      display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    }
+    .tpl-7 .p7-banner h2 { font-size: 22px; font-weight: 900; }
+    .tpl-7 .p7-banner span { font-size: 12px; font-weight: 700; opacity: 0.9; }
+    .tpl-7 .p7-floating {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      background: rgba(15,23,42,0.92);
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 14px;
+      padding: 14px; display: flex; justify-content: space-between; align-items: center;
+    }
+    .tpl-7 .p7-floating strong { font-size: 24px; color: var(--dorado); font-weight: 900; display: block; }
+    .tpl-7 .p7-floating small { font-size: 11px; color: #cbd5e1; font-weight: 700; }
+
+    /* PLANTILLA 8 */
+    .tpl-8 .p8-frame {
+      position: absolute;
+      inset: 12px;
+      border: 2px solid var(--bordeaux);
+      pointer-events: none;
+    }
+    .tpl-8 .p8-border-outer {
+      position: absolute;
+      inset: 0;
+      border: 10px solid #ffffff;
+      pointer-events: none;
+    }
+    .tpl-8 .p8-tag-top {
+      position: absolute; top: 10px; left: 10px;
+      background: var(--bordeaux); color: #fff; padding: 8px 14px;
+      font-weight: 900; font-size: 16px;
+      z-index: 4;
+    }
+    .tpl-8 .p8-footer {
+      position: absolute; bottom: 10px; left: 10px; right: 10px;
+      background: #ffffff; color: #0f172a; padding: 12px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      z-index: 4;
+    }
+    .tpl-8 .p8-footer strong { font-size: 22px; font-weight: 900; color: var(--bordeaux); }
+
+    /* PLANTILLA 9 */
+    .tpl-9 .flyer-overlay {
+      background: radial-gradient(circle at 50% 45%, transparent 25%, rgba(0,0,0,0.85) 100%);
+    }
+    .tpl-9 .p9-center-top {
+      padding-top: 22px; text-align: center;
+    }
+    .tpl-9 .p9-center-top span {
+      border: 1px solid var(--dorado); color: var(--dorado);
+      padding: 3px 12px; font-size: 11px; font-weight: 800; letter-spacing: 2px;
+    }
+    .tpl-9 .p9-center-top h2 {
+      font-size: 30px; font-weight: 900; margin-top: 6px; letter-spacing: 1px;
+    }
+    .tpl-9 .p9-bottom {
+      position: absolute; bottom: 18px; left: 18px; right: 18px;
+      border-top: 1px solid rgba(245,197,24,0.4); padding-top: 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .tpl-9 .p9-bottom strong { font-size: 24px; color: var(--dorado); font-weight: 900; }
+
+    /* PLANTILLA 10 */
+    .tpl-10 .flyer-overlay {
+      background: linear-gradient(180deg, rgba(0,0,0,0.58) 0%, transparent 35%, rgba(0,0,0,0.82) 100%);
+    }
+    .tpl-10 .p10-top {
+      padding: 16px; display: flex; align-items: center; gap: 10px;
+    }
+    .tpl-10 .logo-badge { width: 48px; height: 48px; }
+    .tpl-10 .p10-bottom {
+      position: absolute; bottom: 16px; left: 16px; right: 16px;
+      text-align: center;
+    }
+    .tpl-10 .p10-card {
+      background: #ffffff; color: #0f172a; border-radius: 14px; padding: 14px;
+      margin-bottom: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+    .tpl-10 .p10-card strong { font-size: 26px; font-weight: 900; color: var(--rojo); display: block; }
+    .tpl-10 .p10-cta {
+      background: var(--verde-wa); color: #fff; font-weight: 900;
+      padding: 10px; border-radius: 999px; font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <h1>Generador de Flyers (10 Plantillas)</h1>
+
+    <div class="field">
+      <label>Formato del Flyer</label>
+      <div class="grid-3" id="fmt-selector">
+        <button type="button" class="fmt-btn active" data-fmt="4:5">4:5 Feed</button>
+        <button type="button" class="fmt-btn" data-fmt="9:16">9:16 Estado</button>
+        <button type="button" class="fmt-btn" data-fmt="1:1">1:1 Cuadrado</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>1. Elegí una de las 10 Plantillas</label>
+      <div class="templates-grid" id="tpl-selector">
+        <button type="button" class="tpl-btn active" data-tpl="1">1. Cintas Clásicas</button>
+        <button type="button" class="tpl-btn" data-tpl="2">2. Promo Píldora</button>
+        <button type="button" class="tpl-btn" data-tpl="3">3. Bordeaux & Oro</button>
+        <button type="button" class="tpl-btn" data-tpl="4">4. Tabla 3 Precios</button>
+        <button type="button" class="tpl-btn" data-tpl="5">5. Minimal Blanco</button>
+        <button type="button" class="tpl-btn" data-tpl="6">6. Comercial Impacto</button>
+        <button type="button" class="tpl-btn" data-tpl="7">7. Banner Impacto</button>
+        <button type="button" class="tpl-btn" data-tpl="8">8. Marco Catálogo</button>
+        <button type="button" class="tpl-btn" data-tpl="9">9. Dark Luxury</button>
+        <button type="button" class="tpl-btn" data-tpl="10">10. Estado WhatsApp</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Render (URL desde AppSheet o Archivo Local)</label>
+      <input type="file" id="file-bg" accept="image/*" />
+    </div>
+
+    <div class="field">
+      <label>Logo (Archivo Local)</label>
+      <input type="file" id="file-logo" accept="image/*" />
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Nombre / Proyecto</label>
+        <input id="in-modelo" value="VALENTÍN" />
+      </div>
+      <div class="field">
+        <label>Total Metros (M2)</label>
+        <input id="in-m2" value="47m2" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Tipología</label>
+        <input id="in-tipologia" value="Minimalista" />
+      </div>
+      <div class="field">
+        <label>Estructura / Terminación</label>
+        <input id="in-estructura" value="1x2 / Placa de Fibrocemento" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Llave en Mano c/IVA</label>
+        <input id="in-llave" value="$37.000.000" />
+      </div>
+      <div class="field">
+        <label>Obra Gris c/ Platea c/IVA</label>
+        <input id="in-platea" value="$16.900.000" />
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Obra Gris s/ Platea c/IVA</label>
+        <input id="in-gris" value="$10.768.778" />
+      </div>
+      <div class="field">
+        <label>Etiqueta Promo / Extra</label>
+        <input id="in-promo" value="ENTREGA EN 30 DÍAS" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Características (1 por línea)</label>
+      <textarea id="in-specs">SUPERFICIE TOTAL 47m2
+2 Dormitorios
+Cocina Comedor
+1 Baño</textarea>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-jpg" id="btn-download-jpg">Descargar JPG</button>
+      <button type="button" class="btn btn-png" id="btn-download-png">Descargar PNG</button>
+    </div>
+    <p class="quality-note">Conectado a Catalogo_Conf vía URL. Exportación en JPG y PNG conservando formato, zoom (0.50x a 2.50x) y encuadre.</p>
+  </aside>
+
+  <main class="preview-area" id="preview-area">
+    <div class="flyer-wrapper">
+      <div class="flyer-canvas tpl-1" id="flyer-canvas">
+        <div id="div-bg-blur" class="flyer-bg-blur" aria-hidden="true"></div>
+        <div id="div-bg" class="flyer-bg" role="img" aria-label="Render Vivienda"></div>
+        <div class="flyer-overlay"></div>
+        <div class="flyer-layer" id="flyer-layer"></div>
+      </div>
+    </div>
+
+    <div class="crop-box" id="crop-box">
+      <div class="crop-header">
+        <label>Encuadre y Zoom del Render</label>
+        <button type="button" class="btn-reset-crop" id="btn-reset-crop">Reiniciar</button>
+      </div>
+      <div class="crop-sliders">
+        <div class="slider-row">
+          <div class="slider-top"><span>Zoom</span><span id="val-zoom">1.00x</span></div>
+          <input type="range" id="rng-zoom" min="0.5" max="2.5" step="0.02" value="1" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Mover X</span><span id="val-x">0%</span></div>
+          <input type="range" id="rng-x" min="-100" max="100" step="1" value="0" />
+        </div>
+        <div class="slider-row">
+          <div class="slider-top"><span>Mover Y</span><span id="val-y">0%</span></div>
+          <input type="range" id="rng-y" min="-100" max="100" step="1" value="0" />
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const FORMATS = {
+      "4:5":  { w: 460, h: 575, tag: "4x5" },
+      "9:16": { w: 460, h: 818, tag: "9x16" },
+      "1:1":  { w: 460, h: 460, tag: "1x1" }
+    };
+
+    const defaultBg = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#3b82f6"/>
+            <stop offset="58%" stop-color="#93c5fd"/>
+            <stop offset="58%" stop-color="#15803d"/>
+            <stop offset="100%" stop-color="#14532d"/>
+          </linearGradient>
+        </defs>
+        <rect width="800" height="1000" fill="url(#g)"/>
+        <rect x="140" y="450" width="520" height="220" fill="#f5f5f4" stroke="#44403c" stroke-width="6"/>
+        <rect x="190" y="500" width="110" height="110" fill="#1e293b"/>
+        <rect x="360" y="510" width="75" height="160" fill="#292524"/>
+        <rect x="480" y="500" width="110" height="110" fill="#1e293b"/>
+        <text x="400" y="340" font-family="Arial" font-size="26" font-weight="bold" fill="#1e293b" text-anchor="middle">CARGÁ TU RENDER DESDE EL PANEL</text>
+      </svg>
+    `);
+
+    const defaultLogo = "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="120" height="120">
+        <circle cx="60" cy="60" r="56" fill="#6b0f1a"/>
+        <text x="60" y="66" font-family="Arial" font-size="22" font-weight="bold" fill="#ffffff" text-anchor="middle">FH</text>
+      </svg>
+    `);
+
+    let currentTpl = "1";
+    let currentFmt = "4:5";
+    let bgSrc = defaultBg;
+    let logoSrc = defaultLogo;
+    let cropZoom = 1;
+    let cropX = 0;
+    let cropY = 0;
+    let bgNaturalSize = { w: 800, h: 1000 };
+
+    function formatCleanM2(rawVal) {
+      if (!rawVal) return "";
+      const cleaned = String(rawVal).replace(/m2$/i, "").trim().replace(",", ".");
+      if (!cleaned) return "";
+      const num = parseFloat(cleaned);
+      if (Number.isNaN(num)) return String(rawVal);
+      return `${Math.round(num)}m2`;
+    }
+
+    function formatPesos(rawVal) {
+      if (!rawVal) return "";
+      const str = String(rawVal).trim();
+      if (!str) return "";
+      const cleaned = str.replace(/\$/g, "").replace(/\s+/g, "").replace(/,/g, "");
+      const num = parseFloat(cleaned);
+      if (Number.isNaN(num)) return str;
+      const [intPart, decPart] = num.toFixed(2).split(".");
+      const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return `$${formattedInt}.${decPart}`;
+    }
+
+    function getBgBoxCssSize(boxW, boxH) {
+      const imgRatio = bgNaturalSize.w / bgNaturalSize.h;
+      const boxRatio = boxW / boxH;
+      let baseW, baseH;
+      if (imgRatio > boxRatio) {
+        baseH = boxH;
+        baseW = boxH * imgRatio;
+      } else {
+        baseW = boxW;
+        baseH = boxW / imgRatio;
+      }
+      return {
+        w: baseW * cropZoom,
+        h: baseH * cropZoom,
+        boxW,
+        boxH
+      };
+    }
+
+    function applyBackground() {
+      const fmt = FORMATS[currentFmt] || FORMATS["4:5"];
+      const boxW = fmt.w;
+      const boxH = currentTpl === "5" ? fmt.h * 0.6 : fmt.h;
+
+      const sz = getBgBoxCssSize(boxW, boxH);
+      const maxOffsetX = Math.abs(sz.w - sz.boxW) / 2;
+      const maxOffsetY = Math.abs(sz.h - sz.boxH) / 2;
+      const posX = (sz.boxW - sz.w) / 2 + (cropX / 100) * maxOffsetX;
+      const posY = (sz.boxH - sz.h) / 2 + (cropY / 100) * maxOffsetY;
+
+      const divBlur = document.getElementById("div-bg-blur");
+      divBlur.style.backgroundImage = `url("${bgSrc}")`;
+      divBlur.style.display = cropZoom < 1 ? "block" : "none";
+
+      const divBg = document.getElementById("div-bg");
+      divBg.style.backgroundImage = `url("${bgSrc}")`;
+      divBg.style.backgroundSize = `${sz.w.toFixed(2)}px ${sz.h.toFixed(2)}px`;
+      divBg.style.backgroundPosition = `${posX.toFixed(2)}px ${posY.toFixed(2)}px`;
+    }
+
+    function syncCropUI() {
+      document.getElementById("rng-zoom").value = cropZoom;
+      document.getElementById("rng-x").value = cropX;
+      document.getElementById("rng-y").value = cropY;
+      document.getElementById("val-zoom").textContent = `${cropZoom.toFixed(2)}x`;
+      document.getElementById("val-x").textContent = `${cropX > 0 ? "+" : ""}${cropX}%`;
+      document.getElementById("val-y").textContent = `${cropY > 0 ? "+" : ""}${cropY}%`;
+      applyBackground();
+    }
+
+    function inspectBgDimensions(src) {
+      const probe = new Image();
+      probe.crossOrigin = "anonymous";
+      probe.onload = () => {
+        if (probe.naturalWidth && probe.naturalHeight) {
+          bgNaturalSize = { w: probe.naturalWidth, h: probe.naturalHeight };
+          applyBackground();
+        }
+      };
+      probe.onerror = () => {
+        bgSrc = defaultBg;
+        applyBackground();
+      };
+      probe.src = src;
+    }
+
+    function updateFlyerScale() {
+      const fmt = FORMATS[currentFmt] || FORMATS["4:5"];
+      document.documentElement.style.setProperty("--flyer-w", `${fmt.w}px`);
+      document.documentElement.style.setProperty("--flyer-h", `${fmt.h}px`);
+
+      const area = document.getElementById("preview-area");
+      const availWidth = area.clientWidth - 24;
+      const availHeight = area.clientHeight - 130;
+
+      const scaleW = availWidth / fmt.w;
+      const scaleH = window.innerWidth > 960 && availHeight > 120 ? availHeight / fmt.h : 1;
+      const scale = Math.min(1, Math.max(0.45, Math.min(scaleW, scaleH)));
+
+      document.documentElement.style.setProperty("--flyer-scale", scale.toFixed(4));
+    }
+
+    window.addEventListener("resize", updateFlyerScale);
+
+    const params = new URLSearchParams(window.location.search);
+    const modeloParam = params.get("modelo") || params.get("nombre_pila") || params.get("id_proyectos");
+    const m2Param = params.get("m2") || params.get("total_metros");
+    const estParam = params.get("estructura");
+    const termParam = params.get("terminacion");
+    const renderParam = params.get("render") || params.get("renders");
+
+    if (modeloParam) document.getElementById("in-modelo").value = modeloParam;
+    if (m2Param) document.getElementById("in-m2").value = formatCleanM2(m2Param);
+    if (params.get("tipologia")) document.getElementById("in-tipologia").value = params.get("tipologia");
+    if (estParam || termParam) {
+      document.getElementById("in-estructura").value =
+        [estParam, termParam].filter(Boolean).join(" / ");
+    }
+    if (params.get("llave")) document.getElementById("in-llave").value = formatPesos(params.get("llave"));
+    if (params.get("platea")) document.getElementById("in-platea").value = formatPesos(params.get("platea"));
+    if (params.get("gris")) document.getElementById("in-gris").value = formatPesos(params.get("gris"));
+    if (params.get("promo")) document.getElementById("in-promo").value = params.get("promo");
+    if (params.get("tpl")) currentTpl = params.get("tpl");
+    if (params.get("fmt") && FORMATS[params.get("fmt")]) currentFmt = params.get("fmt");
+    if (renderParam && /^https?:\/\//i.test(renderParam)) {
+      bgSrc = renderParam;
+    }
+
+    const specsParam = params.get("specs");
+    if (specsParam) {
+      const formattedSpecs = specsParam
+        .split("||")
+        .map(item => item.trim())
+        .filter(Boolean)
+        .map(item => item.replace(/^SUPERFICIE TOTAL\s+(\d+(?:[.,]\d+)?)m2$/i, (_, n) => `SUPERFICIE TOTAL ${Math.round(parseFloat(String(n).replace(",", ".")))}m2`))
+        .join("\n");
+      if (formattedSpecs) {
+        document.getElementById("in-specs").value = formattedSpecs;
+      }
+    }
+
+    function syncFmtButtons() {
+      document.querySelectorAll(".fmt-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.fmt === currentFmt);
+      });
+    }
+    syncFmtButtons();
+    updateFlyerScale();
+    inspectBgDimensions(bgSrc);
+
+    function getData() {
+      return {
+        modelo: document.getElementById("in-modelo").value,
+        m2: document.getElementById("in-m2").value,
+        tipologia: document.getElementById("in-tipologia").value,
+        estructura: document.getElementById("in-estructura").value,
+        llave: document.getElementById("in-llave").value,
+        platea: document.getElementById("in-platea").value,
+        gris: document.getElementById("in-gris").value,
+        promo: document.getElementById("in-promo").value,
+        specs: document.getElementById("in-specs").value.split("\n").filter(Boolean)
+      };
+    }
+
+    function render() {
+      const d = getData();
+      const canvas = document.getElementById("flyer-canvas");
+      const layer = document.getElementById("flyer-layer");
+      canvas.className = `flyer-canvas tpl-${currentTpl}`;
+
+      const specsList = `<ul class="check-list">${d.specs.map(s => `<li>${s}</li>`).join("")}</ul>`;
+      const logoHtml = `<div class="logo-badge"><img src="${logoSrc}" alt="Logo"></div>`;
+
+      const templates = {
+        "1": `
+          <div class="p1-top-left">
+            <div class="p1-modelo-lbl">MODELO</div>
+            <div class="p1-tag">Llave en Mano</div>
+            <div class="p1-ribbon-left">${d.llave}</div>
+          </div>
+          <div class="p1-nombre">${String(d.modelo || "").toUpperCase()}</div>
+          <div class="p1-mid-right">
+            <div class="p1-gris-lbl">Obra en Gris<br>c/ Platea</div>
+            <div class="p1-ribbon-right">${d.platea}</div>
+          </div>
+          <div class="p1-specs">${specsList}</div>
+          ${logoHtml}
+        `,
+        "2": `
+          <div class="p2-header">
+            ${logoHtml}
+            <div class="p2-claim">CONSTRUIMOS TU CASA • ${d.promo}</div>
+            <div class="p2-subclaim">MODELO ${d.modelo}</div>
+            <div class="p2-pill"><span>${d.m2} desde</span><strong>${d.gris}</strong></div>
+            <div class="p2-sistema">Sistema ${d.estructura}</div>
+          </div>
+          <div class="p2-bottom">
+            <div class="p2-promo-box">LLAVE EN MANO c/ PLATEA:<br><span style="font-size:17px">${d.llave}</span></div>
+            <div class="p2-card">${specsList}</div>
+          </div>
+        `,
+        "3": `
+          <div class="p3-top">
+            <div class="p3-title">
+              <p>${d.tipologia} • ${d.estructura}</p>
+              <h2>MODELO ${d.modelo}</h2>
+            </div>
+            ${logoHtml}
+          </div>
+          <div class="p3-bottom">
+            <div class="p3-prices">
+              <div class="p3-price-box"><small>OBRA GRIS C/ PLATEA</small><strong>${d.platea}</strong></div>
+              <div class="p3-price-box"><small>LLAVE EN MANO</small><strong>${d.llave}</strong></div>
+            </div>
+            <div class="p3-specs-row">
+              ${d.specs.map(s => `<span class="p3-chip">${s}</span>`).join("")}
+            </div>
+          </div>
+        `,
+        "4": `
+          <div class="p4-header">
+            <div>
+              <span class="p4-badge">${d.promo}</span>
+              <h2 style="margin-top:6px">MODELO ${d.modelo} (${d.m2})</h2>
+            </div>
+            ${logoHtml}
+          </div>
+          <div class="p4-table">
+            <div class="p4-row"><span>Obra Gris (Sin Platea)</span><strong>${d.gris}</strong></div>
+            <div class="p4-row"><span>Obra Gris con Platea</span><strong>${d.platea}</strong></div>
+            <div class="p4-row destacado"><span>Llave en Mano (Incluye Platea)</span><strong>${d.llave}</strong></div>
+          </div>
+        `,
+        "5": `
+          ${logoHtml}
+          <div class="p5-panel">
+            <div class="p5-top">
+              <div>
+                <h2>${d.modelo}</h2>
+                <span>${d.tipologia} • ${d.estructura} • ${d.m2}</span>
+              </div>
+            </div>
+            <div class="p5-prices">
+              <div class="p5-box"><small>OBRA GRIS C/ PLATEA</small><strong>${d.platea}</strong></div>
+              <div class="p5-box main"><small>LLAVE EN MANO</small><strong>${d.llave}</strong></div>
+            </div>
+            <div style="font-size:11.5px;font-weight:700;color:#334155">${d.specs.join(" • ")}</div>
+          </div>
+        `,
+        "6": `
+          <div class="p6-header">
+            ${logoHtml}
+            <div class="p6-brand-txt">
+              <div class="p6-modelo">MODELO ${d.modelo}</div>
+              <div class="p6-sub">${d.tipologia} • ${d.estructura}</div>
+            </div>
+            <div class="p6-m2-pill">
+              <strong>${d.m2}</strong>
+              <span>SUPERFICIE</span>
+            </div>
+          </div>
+          <div class="p6-hero-price">
+            <span class="p6-price-tag">Llave en Mano</span>
+            <div class="p6-price-main">${d.llave}</div>
+            <div class="p6-price-sub">Obra Gris c/ Platea: <strong>${d.platea}</strong></div>
+          </div>
+          <div class="p6-side-badges">
+            <div class="p6-badge-l">${d.promo}</div>
+            <div class="p6-badge-r">Gris s/ Platea:<br><strong>${d.gris}</strong></div>
+          </div>
+          <div class="p6-bottom">
+            <div class="p6-specs-grid">
+              ${d.specs.map(s => `<span>${s}</span>`).join("")}
+            </div>
+            <div class="p6-cta">Consultanos</div>
+          </div>
+        `,
+        "7": `
+          <div class="p7-banner">
+            <div>
+              <span>${d.promo}</span>
+              <h2>MODELO ${d.modelo}</h2>
+            </div>
+            ${logoHtml}
+          </div>
+          <div class="p7-floating">
+            <div>
+              <small>LLAVE EN MANO • ${d.m2}</small>
+              <strong>${d.llave}</strong>
+              <small>Obra Gris c/ Platea: ${d.platea}</small>
+            </div>
+          </div>
+        `,
+        "8": `
+          <div class="p8-border-outer"></div>
+          <div class="p8-frame"></div>
+          <div class="p8-tag-top">${d.modelo} • ${d.m2}</div>
+          <div class="p8-footer">
+            <div>
+              <div style="font-size:11px;font-weight:800;color:#64748b">LLAVE EN MANO</div>
+              <strong>${d.llave}</strong>
+              <div style="font-size:11px;font-weight:700">Gris c/ Platea: ${d.platea}</div>
+            </div>
+            ${logoHtml}
+          </div>
+        `,
+        "9": `
+          <div class="p9-center-top">
+            <span>${d.tipologia.toUpperCase()}</span>
+            <h2>${d.modelo}</h2>
+          </div>
+          <div class="p9-bottom">
+            <div>
+              <div style="font-size:11px;color:#cbd5e1;font-weight:700">LLAVE EN MANO • ${d.m2}</div>
+              <strong>${d.llave}</strong>
+            </div>
+            ${logoHtml}
+          </div>
+        `,
+        "10": `
+          <div class="p10-top">
+            ${logoHtml}
+            <div>
+              <div style="font-weight:900;font-size:16px">MODELO ${d.modelo}</div>
+              <div style="font-size:12px;color:#e2e8f0">${d.m2} • ${d.estructura}</div>
+            </div>
+          </div>
+          <div class="p10-bottom">
+            <div class="p10-card">
+              <div style="font-size:11px;font-weight:800;color:#64748b">PRECIO LLAVE EN MANO</div>
+              <strong>${d.llave}</strong>
+              <div style="font-size:12px;font-weight:700">Obra Gris c/ Platea: ${d.platea}</div>
+            </div>
+            <div class="p10-cta">CONSULTANOS POR ESTE MODELO</div>
+          </div>
+        `
+      };
+
+      layer.innerHTML = templates[currentTpl] || templates["1"];
+      applyBackground();
+    }
+
+    document.querySelectorAll(".fmt-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        currentFmt = btn.dataset.fmt;
+        syncFmtButtons();
+        updateFlyerScale();
+        render();
+      });
+    });
+
+    document.querySelectorAll(".tpl-btn").forEach(btn => {
+      if (btn.dataset.tpl === currentTpl) btn.classList.add("active");
+      else btn.classList.remove("active");
+
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tpl-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentTpl = btn.dataset.tpl;
+        render();
+      });
+    });
+
+    document.getElementById("rng-zoom").addEventListener("input", e => {
+      cropZoom = parseFloat(e.target.value) || 1;
+      syncCropUI();
+    });
+
+    document.getElementById("rng-x").addEventListener("input", e => {
+      cropX = parseInt(e.target.value, 10) || 0;
+      syncCropUI();
+    });
+
+    document.getElementById("rng-y").addEventListener("input", e => {
+      cropY = parseInt(e.target.value, 10) || 0;
+      syncCropUI();
+    });
+
+    document.getElementById("btn-reset-crop").addEventListener("click", () => {
+      cropZoom = 1;
+      cropX = 0;
+      cropY = 0;
+      syncCropUI();
+    });
+
+    document.querySelectorAll("input:not([type=file]):not([type=range]), textarea").forEach(el => {
+      el.addEventListener("input", render);
+    });
+
+    document.getElementById("file-bg").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        bgSrc = ev.target.result;
+        cropZoom = 1;
+        cropX = 0;
+        cropY = 0;
+        inspectBgDimensions(bgSrc);
+        syncCropUI();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("file-logo").addEventListener("change", e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        logoSrc = ev.target.result;
+        render();
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function loadImage(src) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    }
+
+    function drawCroppedCoverImage(ctx, img, dx, dy, dw, dh) {
+      const imgRatio = img.naturalWidth / img.naturalHeight;
+      const dstRatio = dw / dh;
+
+      let baseCoverW, baseCoverH;
+      if (imgRatio > dstRatio) {
+        baseCoverH = dh;
+        baseCoverW = dh * imgRatio;
+      } else {
+        baseCoverW = dw;
+        baseCoverH = dw / imgRatio;
+      }
+
+      const drawW = baseCoverW * cropZoom;
+      const drawH = baseCoverH * cropZoom;
+
+      const overflowX = Math.abs(drawW - dw);
+      const overflowY = Math.abs(drawH - dh);
+
+      const offsetX = (dw - drawW) / 2 + (cropX / 100) * (overflowX / 2);
+      const offsetY = (dh - drawH) / 2 + (cropY / 100) * (overflowY / 2);
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(dx, dy, dw, dh);
+      ctx.clip();
+
+      if (cropZoom < 1) {
+        ctx.save();
+        ctx.filter = "blur(24px) brightness(0.75)";
+        const pad = 40;
+        ctx.drawImage(
+          img,
+          dx + (dw - baseCoverW) / 2 - pad,
+          dy + (dh - baseCoverH) / 2 - pad,
+          baseCoverW + pad * 2,
+          baseCoverH + pad * 2
+        );
+        ctx.restore();
+      }
+
+      ctx.drawImage(img, dx + offsetX, dy + offsetY, drawW, drawH);
+      ctx.restore();
+    }
+
+    async function renderHighResCanvas(clone, scale) {
+      const canvas = await html2canvas(clone, {
+        scale,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: null
+      });
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+      }
+      return canvas;
+    }
+
+    async function exportFlyer(format) {
+      const fmt = FORMATS[currentFmt] || FORMATS["4:5"];
+      const original = document.getElementById("flyer-canvas");
+      const clone = original.cloneNode(true);
+      const cloneBg = clone.querySelector(".flyer-bg");
+      if (cloneBg) cloneBg.style.display = "none";
+      const cloneBlur = clone.querySelector(".flyer-bg-blur");
+      if (cloneBlur) cloneBlur.style.display = "none";
+
+      clone.style.position = "fixed";
+      clone.style.left = "-9999px";
+      clone.style.top = "0";
+      clone.style.transform = "none";
+      clone.style.width = `${fmt.w}px`;
+      clone.style.height = `${fmt.h}px`;
+      clone.style.background = "transparent";
+      document.body.appendChild(clone);
+
+      let overlayCanvas;
+      try {
+        let lastErr;
+        for (const s of [4, 3, 2.5]) {
+          try {
+            overlayCanvas = await renderHighResCanvas(clone, s);
+            break;
+          } catch (e) {
+            lastErr = e;
+            if (s === 2.5) throw lastErr;
+          }
+        }
+      } finally {
+        document.body.removeChild(clone);
+      }
+
+      const finalCanvas = document.createElement("canvas");
+      finalCanvas.width = overlayCanvas.width;
+      finalCanvas.height = overlayCanvas.height;
+      const ctx = finalCanvas.getContext("2d");
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+
+      if (format === "jpg") {
+        ctx.fillStyle = currentTpl === "5" ? "#f8fafc" : "#0f172a";
+        ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+      }
+
+      const bgImg = await loadImage(bgSrc);
+      const w = finalCanvas.width;
+      const h = finalCanvas.height;
+
+      if (currentTpl === "5") {
+        drawCroppedCoverImage(ctx, bgImg, 0, 0, w, h * 0.6);
+      } else {
+        drawCroppedCoverImage(ctx, bgImg, 0, 0, w, h);
+      }
+
+      ctx.drawImage(overlayCanvas, 0, 0, w, h);
+
+      const link = document.createElement("a");
+      const nombre = (document.getElementById("in-modelo").value || "flyer").trim().replace(/\s+/g, "_");
+      const suffix = `${fmt.tag}_T${currentTpl}`;
+      if (format === "jpg") {
+        link.download = `Flyer_${nombre}_${suffix}.jpg`;
+        link.href = finalCanvas.toDataURL("image/jpeg", 0.98);
+      } else {
+        link.download = `Flyer_${nombre}_${suffix}.png`;
+        link.href = finalCanvas.toDataURL("image/png");
+      }
+      link.click();
+    }
+
+    document.getElementById("btn-download-jpg").addEventListener("click", async () => {
+      try { await exportFlyer("jpg"); }
+      catch (err) { alert("No se pudo generar el JPG. Si usaste un render externo sin CORS, cargalo desde archivo local."); }
+    });
+
+    document.getElementById("btn-download-png").addEventListener("click", async () => {
+      try { await exportFlyer("png"); }
+      catch (err) { alert("No se pudo generar el PNG. Si usaste un render externo sin CORS, cargalo desde archivo local."); }
+    });
+
+    render();
+  </script>
+</body>
+</html>

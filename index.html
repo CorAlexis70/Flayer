@@ -871,6 +871,95 @@
       background: var(--verde-wa); color: #fff; font-weight: 900;
       padding: 10px; border-radius: 999px; font-size: 14px;
     }
+        /* PLANTILLA 11 (ESTILO HERO / VECTA) */
+    .tpl-11 .flyer-overlay {
+      background: linear-gradient(
+        180deg,
+        rgba(10, 16, 28, 0.72) 0%,
+        rgba(10, 16, 28, 0.34) 34%,
+        rgba(10, 16, 28, 0.12) 56%,
+        rgba(10, 16, 28, 0.84) 100%
+      );
+    }
+    .tpl-11 .p11-top {
+      padding: 20px 18px 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .tpl-11 .logo-badge {
+      width: 52px;
+      height: 52px;
+      margin-bottom: 10px;
+    }
+    .tpl-11 .p11-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2.2px;
+      text-transform: uppercase;
+      color: #f8fafc;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.85);
+      margin-bottom: 4px;
+    }
+    .tpl-11 .p11-main-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 27px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.05;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.85);
+      max-width: 410px;
+    }
+    .tpl-11 .p11-sub-pill {
+      margin-top: 8px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--dorado);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    }
+    .tpl-11 .p11-price-hero {
+      margin-top: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #ffffff;
+      line-height: 1.05;
+      text-shadow: 0 4px 16px rgba(0, 0, 0, 0.9);
+    }
+    .tpl-11 .p11-bottom {
+      position: absolute;
+      bottom: 18px;
+      left: 20px;
+      right: 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .tpl-11 .p11-specs-line {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.7px;
+      text-transform: uppercase;
+      color: #ffffff;
+      line-height: 1.45;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+    }
+    .tpl-11 .p11-footer-note {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(248, 250, 252, 0.82);
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+    }
   </style>
 </head>
 <body>
@@ -900,6 +989,7 @@
         <button type="button" class="tpl-btn" data-tpl="8">8. Marco Catálogo</button>
         <button type="button" class="tpl-btn" data-tpl="9">9. Dark Luxury</button>
         <button type="button" class="tpl-btn" data-tpl="10">10. Estado WhatsApp</button>
+        <button type="button" class="tpl-btn" data-tpl="11">11. Estilo Hero / Vecta</button>
       </div>
     </div>
 
@@ -1383,6 +1473,19 @@ Cocina Comedor
               <div style="font-size:12px;font-weight:700">Obra Gris c/ Platea: ${d.platea}</div>
             </div>
             <div class="p10-cta">CONSULTANOS POR ESTE MODELO</div>
+          </div>
+        `,
+                "11": `
+          <div class="p11-top">
+            ${logoHtml}
+            <div class="p11-kicker">${d.tipologia} • MODELO ${d.modelo}</div>
+            <div class="p11-main-title">${d.estructura}</div>
+            <div class="p11-sub-pill">PROYECTO LLAVE EN MANO ${d.m2 ? `• ${d.m2}` : ""}</div>
+            <div class="p11-price-hero">${d.llave}</div>
+          </div>
+          <div class="p11-bottom">
+            <div class="p11-specs-line">${d.specs.join("  |  ")}</div>
+            <div class="p11-footer-note">${d.promo || "FULL HOUSE VIVIENDAS INDUSTRIALIZADAS"}</div>
           </div>
         `
       };

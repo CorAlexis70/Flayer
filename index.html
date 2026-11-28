@@ -1427,14 +1427,14 @@ Cocina Comedor
       if (!rawVal) return "";
       const str = String(rawVal).trim();
       if (!str) return "";
-      const cleaned = str.replace(/\$/g, "").replace(/\s+/g, "").replace(/,/g, "");
-      const num = parseFloat(cleaned);
-      if (Number.isNaN(num)) return str;
-      const [intPart, decPart] = num.toFixed(2).split(".");
-      const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-      return `$${formattedInt}.${decPart}`;
+      // Quita signo $, espacios y comas de miles, y corta desde el punto decimal en adelante sin redondear
+      const withoutDecimals = str.replace(/\$/g, "").replace(/\s+/g, "").replace(/,/g, "").split(".")[0];
+      const digitsOnly = withoutDecimals.replace(/[^\d-]/g, "");
+      if (!digitsOnly) return str;
+      const formattedInt = digitsOnly.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+      return `$${formattedInt}`;
     }
-
+    
     function getBgBoxCssSize(boxW, boxH) {
       const imgRatio = bgNaturalSize.w / bgNaturalSize.h;
       const boxRatio = boxW / boxH;
